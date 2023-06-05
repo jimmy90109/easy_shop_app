@@ -815,16 +815,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
       },
       itemBuilder: (BuildContext context, int index) {
         var item = searchItem(list[index].itemid);
-        // var lastTime ;
-        // var hasmsg = checkmsg(list[index].id!);
-        // var lastmsg = searchLastMessage(list[index].id!);
-
-        // if (hasmsg == 1) {
-        //   lastTime = searchMessageTime(list[index].id!);
-        //   lastmsg = searchLastMessage(list[index].id!);
-        // } else {
-        //   lastmsg = "無";
-        // }
 
         return ListTile(
           leading: ClipRRect(
