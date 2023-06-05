@@ -73,7 +73,7 @@ class _ChatPageState extends State<ChatPage> {
                       controller: _controller,
                             itemCount: _messageList.length,
                             //reverse: true,
-                            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
+                            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0),
                             itemBuilder: (BuildContext context, int index) {
                               return Container(
                                 alignment: _messageList[index].senderid ==
