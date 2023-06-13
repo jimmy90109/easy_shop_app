@@ -46,17 +46,6 @@ CREATE TABLE $tableMessages (
   Future<Message> create(Message message) async {
     final db = await instance.database;
 
-    //print(message);
-
-    // final json = Message.toJson();
-    // final columns =
-    //     '${MessageFields.title}, ${MessageFields.description}, ${MessageFields.time}';
-    // final values =
-    //     '${json[MessageFields.title]}, ${json[MessageFields.description]}, ${json[MessageFields.time]}';
-    // final id = await db
-    //     .rawInsert('INSERT INTO table_name ($columns) VALUES ($values)');
-
-    //equal to this line
     final id = await db.insert(tableMessages, message.toJson());
     return message.copy(id: id);
   }
@@ -113,17 +102,6 @@ CREATE TABLE $tableMessages (
       return [];
     }
   }
-
-  // Future<int> update(Message message) async {
-  //   final db = await instance.database;
-  //
-  //   return db.update(
-  //     tableMessages,
-  //     message.toJson(),
-  //     where: '${MessageFields.id} = ?',
-  //     whereArgs: [message.id],
-  //   );
-  // }
 
   Future<int> delete(int id) async {
     final db = await instance.database;

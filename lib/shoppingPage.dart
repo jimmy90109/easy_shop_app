@@ -4,7 +4,6 @@ import 'package:easy_shop/addItem.dart';
 import 'package:easy_shop/bd/chatroom_database.dart';
 import 'package:easy_shop/checkout.dart';
 import 'package:easy_shop/detailPage.dart';
-import 'package:easy_shop/model/message.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -13,6 +12,7 @@ import 'bd/item_database.dart';
 import 'bd/message_database.dart';
 import 'bd/order_database.dart';
 import 'chat.dart';
+import 'main.dart';
 import 'model/buyer.dart';
 import 'model/cart.dart';
 import 'model/chatroom.dart';
@@ -31,18 +31,14 @@ class _ShoppingPageState extends State<ShoppingPage> {
   int _selectedIndex = 0; //預設index
 
   late List<Item> _itemList;
-
   late List<Cart> _cartList;
-  // late List<Item> _cartDetails;
-
   late List<Order> _orderList;
-  // late List<Item> _orderDetails;
 
   int buyerOrSeller = 1;
   late List<Chatroom> _chatroomOfBuyer;
   late List<String> _lastMsgOfBuyer;
   late List<Chatroom> _chatroomOfSeller;
-  late List<String> _lastMsgOfseller;
+  late List<String> _lastMsgOfSeller;
 
   Future getItems() async {
     _itemList = await ItemsDatabase.instance.readAllItems();
@@ -60,52 +56,15 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
   Future getCart() async {
     _cartList = await CartsDatabase.instance.readCart(widget.user.id!);
-    // _cartDetails.clear();
-    // if (_cartList.isNotEmpty) {
-    //   for (var cart in _cartList) {
-    // _cartDetails.add(await ItemsDatabase.instance.readItem(cart.itemid));
-    //   }
-    // }
     setState(() {});
   }
 
-  Future getBuyerChatroom() async {
-    _chatroomOfBuyer =
-        await ChatroomsDatabase.instance.readBuyerChatroom(widget.user.id!);
-
-    _lastMsgOfBuyer.clear();
-        if (_chatroomOfBuyer.isNotEmpty) {
-          for (var room in _chatroomOfBuyer) {
-            _lastMsgOfBuyer.add(await MessagesDatabase.instance.readMessage(room.id!));
-          }
-        }
-
-
-    setState(() {});
-  }
-
-  Future getSellerChatroom() async {
-    _chatroomOfSeller =
-        await ChatroomsDatabase.instance.readSellerChatroom(widget.user.id!);
-
-    _lastMsgOfseller.clear();
-    if (_chatroomOfSeller.isNotEmpty) {
-      for (var room in _chatroomOfSeller) {
-        _lastMsgOfseller.add(await MessagesDatabase.instance.readMessage(room.id!));
-      }
-    }
-
-    setState(() {});
+  Future deleteCart(int itemid) async {
+    await CartsDatabase.instance.delete(widget.user.id!, itemid);
   }
 
   Future getOrders() async {
     _orderList = await OrdersDatabase.instance.readOrder(widget.user.id!);
-    // _orderDetails.clear();
-    // if (_orderList.isNotEmpty) {
-    //   for (var order in _orderList) {
-    // _orderDetails.add(await ItemsDatabase.instance.readItem(order.itemid));
-    //   }
-    // }
     setState(() {});
   }
 
@@ -113,18 +72,37 @@ class _ShoppingPageState extends State<ShoppingPage> {
     final temp = order.copy(
       completed: true,
     );
-
     await OrdersDatabase.instance.update(temp);
-    //await OrdersDatabase.instance.update(orderid);
   }
 
-  Future deleteCart(int itemid) async {
-    await CartsDatabase.instance.delete(widget.user.id!, itemid);
+  Future getBuyerChatroom() async {
+    _chatroomOfBuyer =
+        await ChatroomsDatabase.instance.readBuyerChatroom(widget.user.id!);
+    _lastMsgOfBuyer.clear();
+    if (_chatroomOfBuyer.isNotEmpty) {
+      for (var room in _chatroomOfBuyer) {
+        _lastMsgOfBuyer
+            .add(await MessagesDatabase.instance.readMessage(room.id!));
+      }
+    }
+    setState(() {});
+  }
+
+  Future getSellerChatroom() async {
+    _chatroomOfSeller =
+        await ChatroomsDatabase.instance.readSellerChatroom(widget.user.id!);
+    _lastMsgOfSeller.clear();
+    if (_chatroomOfSeller.isNotEmpty) {
+      for (var room in _chatroomOfSeller) {
+        _lastMsgOfSeller
+            .add(await MessagesDatabase.instance.readMessage(room.id!));
+      }
+    }
+    setState(() {});
   }
 
   Future<int?> showSelectItemDialog() {
-    var groupValue;
-    groupValue = 0;
+    int groupValue = 0;
     return showDialog<int>(
       context: context,
       builder: (context) {
@@ -144,13 +122,12 @@ class _ShoppingPageState extends State<ShoppingPage> {
                         item.name,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle:
-                          Text("x" + _cartList[index].itemNumber.toString()),
+                      subtitle: Text("x${_cartList[index].itemNumber}"),
                       value: index,
                       groupValue: groupValue,
                       onChanged: (value) {
                         setState(() {
-                          groupValue = value;
+                          groupValue = value!;
                         });
                       },
                     );
@@ -164,7 +141,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
                   foregroundColor: Colors.grey[700],
                 ),
                 child: const Text("取消"),
-                onPressed: () => Navigator.of(context).pop(-1),
+                onPressed: () => Navigator.of(context).pop(),
               ),
               TextButton(
                 style: TextButton.styleFrom(
@@ -178,6 +155,33 @@ class _ShoppingPageState extends State<ShoppingPage> {
             ],
           );
         });
+      },
+    );
+  }
+
+  Future<bool?> showConfirmDialog(String title) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey[700],
+              ),
+              child: const Text("取消"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text("確認"),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
       },
     );
   }
@@ -201,7 +205,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     _chatroomOfBuyer = [];
     _lastMsgOfBuyer = [];
     _chatroomOfSeller = [];
-    _lastMsgOfseller = [];
+    _lastMsgOfSeller = [];
     getItems();
     getCart();
     getOrders();
@@ -223,9 +227,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
         ),
         title: const Text("Easy Shop"),
         centerTitle: true,
-        //elevation: 0,
         scrolledUnderElevation: 0,
         actions: [
+          //item page
           if (_selectedIndex == 0)
             IconButton(
               icon: const Icon(Icons.add),
@@ -238,31 +242,28 @@ class _ShoppingPageState extends State<ShoppingPage> {
                             ))).then((value) => getItems());
               },
             )
+          //cart page
           else if (_selectedIndex == 1 && _cartList.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () async {
                 int? checkout = await showSelectItemDialog();
-
-                if (checkout == null)
-                  print("is a null");
-                else {
-                  if (checkout != -1) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CheckoutPage(
-                                  buyer: widget.user,
-                                  item: searchItem(_cartList[checkout].itemid),
-                                  itemNumber: _cartList[checkout].itemNumber,
-                                ))).then((value) {
-                      getOrders();
-                      getCart();
-                      setState(() {
-                        _selectedIndex = 2;
-                      });
+                if (checkout != null) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CheckoutPage(
+                                buyer: widget.user,
+                                item: searchItem(_cartList[checkout].itemid),
+                                itemNumber: _cartList[checkout].itemNumber,
+                              ))).then((value) {
+                    getOrders();
+                    getCart();
+                    setState(() {
+                      //move to order page
+                      _selectedIndex = 2;
                     });
-                  }
+                  });
                 }
               },
             )
@@ -306,22 +307,22 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
   Widget user_info() {
     return Drawer(
-        child: Drawer(
-      // Add a ListView to the drawer. This ensures the user can scroll
-      // through the options in the drawer if there isn't enough vertical
-      // space to fit everything.
-      child: ListView(
+      child: Padding(
         padding: EdgeInsets.zero,
-        children: [
+        child: Column(mainAxisSize: MainAxisSize.max, children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.grey[400],
+              color: Colors.grey[300],
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(
                   Icons.perm_identity,
                   size: 36,
+                ),
+                const SizedBox(
+                  width: 10,
                 ),
                 Text(
                   widget.user.name,
@@ -333,25 +334,54 @@ class _ShoppingPageState extends State<ShoppingPage> {
           Padding(
             padding: const EdgeInsets.all(32.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text("ID："),
-                Text(
-                  "  " + widget.user.id.toString(),
-                  style: const TextStyle(fontSize: 24),
+                Center(
+                  child: Text(
+                    widget.user.id.toString(),
+                    style: const TextStyle(fontSize: 24),
+                  ),
                 ),
                 const SizedBox(height: 32),
                 const Text("Email："),
-                Text(
-                  "  " + widget.user.email,
-                  style: const TextStyle(fontSize: 24),
+                Center(
+                  child: Text(
+                    widget.user.email,
+                    style: const TextStyle(fontSize: 24),
+                  ),
                 ),
+                // const SizedBox(height: 32),
               ],
             ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    child: const Text("登出"),
+                    onPressed: () async {
+                      var logout = await showConfirmDialog("登出");
+                      if (logout == true) {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MyHomePage()),
+                            (e) => false);
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
           )
-        ],
+        ]),
       ),
-    ));
+    );
   }
 
   Widget home() {
@@ -360,21 +390,25 @@ class _ShoppingPageState extends State<ShoppingPage> {
             itemCount: _itemList.length,
             padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, childAspectRatio: 10.0 / 14.0),
+                //set how many cards in a row and card ratio
+                crossAxisCount: 2,
+                childAspectRatio: 10.0 / 14.0),
             itemBuilder: (BuildContext context, int index) {
               return Card(
                 margin: const EdgeInsets.all(8),
                 elevation: 10,
+                clipBehavior: Clip.antiAlias,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                clipBehavior: Clip.antiAlias,
                 child: InkWell(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       AspectRatio(
-                        aspectRatio: 18.0 / 18.0,
+                        aspectRatio: 1.0 / 1.0,
+
+                        //for detailPage transition
                         child: Hero(
                             tag: index.toString(),
                             child: ClipRRect(
@@ -382,6 +416,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
                               child: CachedNetworkImage(
                                 imageUrl: _itemList[index].imageURL,
                                 fit: BoxFit.cover,
+
+                                //Loading gif
                                 placeholder: (context, url) => Padding(
                                   padding: const EdgeInsets.all(32.0),
                                   child:
@@ -390,6 +426,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                     size: 50,
                                   ),
                                 ),
+
+                                //error icon
                                 errorWidget: (context, url, error) =>
                                     const Icon(Icons.error),
                               ),
@@ -407,7 +445,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                   fontSize: 20, fontWeight: FontWeight.bold),
                               softWrap: false,
                             ),
-                            //const SizedBox(height: 8.0),
                             Text("\$ ${_itemList[index].price}"),
                           ],
                         ),
@@ -415,6 +452,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
                     ],
                   ),
                   onTap: () {
+                    getItems();
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -424,7 +462,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                   item: _itemList[index],
                                   pic: CachedNetworkImageProvider(
                                       _itemList[index].imageURL),
-                                ))).then((value) => getCart());
+                                ))).then((value) {
+                      getCart();
+                    });
                   },
                 ),
               );
@@ -432,39 +472,10 @@ class _ShoppingPageState extends State<ShoppingPage> {
           )
         : const Center(
             child: Text(
-              "右上角添加商品！",
+              "右上角新增商品！",
               style: TextStyle(fontSize: 24),
             ),
           );
-  }
-
-  Future<bool?> showDeleteConfirmDialog() {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("刪除這項項目？"),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.grey[700],
-              ),
-              child: const Text("取消"),
-              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text("删除"),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Widget shopping_cart() {
@@ -474,22 +485,19 @@ class _ShoppingPageState extends State<ShoppingPage> {
             padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             itemBuilder: (BuildContext context, int index) {
               var item = searchItem(_cartList[index].itemid);
-              return Container(
+              return SizedBox(
                 height: 120,
                 child: Card(
                   margin: const EdgeInsets.all(8),
                   elevation: 10,
+                  clipBehavior: Clip.antiAlias,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
                   ),
-                  clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        // AspectRatio(
-                        //   aspectRatio: 18.0 / 18.0,
-                        //   child:
                         Hero(
                             tag: index.toString(),
                             child: ClipRRect(
@@ -498,6 +506,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                 width: 100,
                                 imageUrl: item.imageURL,
                                 fit: BoxFit.cover,
+
+                                //Loading
                                 placeholder: (context, url) => Padding(
                                   padding: const EdgeInsets.all(32.0),
                                   child:
@@ -506,6 +516,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                     size: 50,
                                   ),
                                 ),
+
+                                //error
                                 errorWidget: (context, url, error) =>
                                     const Icon(Icons.error),
                               ),
@@ -530,11 +542,9 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                           fontWeight: FontWeight.bold),
                                       softWrap: false,
                                     ),
-                                    //const SizedBox(height: 8.0),
                                     Text("\$ ${item.price}"),
                                   ],
                                 ),
-                                //const SizedBox(height: 8.0),
                                 Text("X ${_cartList[index].itemNumber}"),
                               ],
                             ),
@@ -558,14 +568,10 @@ class _ShoppingPageState extends State<ShoppingPage> {
                       });
                     },
                     onLongPress: () async {
-                      bool? delete = await showDeleteConfirmDialog();
-                      if (delete == null) {
-                        print("取消删除");
-                      } else {
-                        print("删除");
+                      var delete = await showConfirmDialog("刪除這項項目");
+                      if (delete == true) {
                         deleteCart(_cartList[index].itemid);
                         setState(() {
-                          // _cartDetails.removeAt(index); //可以刪掉
                           _cartList.removeAt(index);
                         });
                       }
@@ -577,7 +583,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
           )
         : const Center(
             child: Text(
-              "去添加商品至購物車！",
+              "去新增商品至購物車！",
               style: TextStyle(fontSize: 24),
             ),
           );
@@ -632,9 +638,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        // AspectRatio(
-                        //   aspectRatio: 18.0 / 18.0,
-                        //   child:
                         Hero(
                             tag: index.toString(),
                             child: ClipRRect(
@@ -675,9 +678,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                           fontWeight: FontWeight.bold),
                                       softWrap: false,
                                     ),
-                                    //const SizedBox(height: 8.0),
                                     Text("\$ ${item.price}"),
-                                    //const SizedBox(height: 8.0),
                                     Text("X ${_orderList[index].itemNumber}"),
                                   ],
                                 ),
@@ -686,9 +687,16 @@ class _ShoppingPageState extends State<ShoppingPage> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
-                                    Text(DateFormat('yyyy/MM/dd – kk:mm')
-                                        .format(_orderList[index].time)),
-                                    const SizedBox(height: 8.0),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(DateFormat('yyyy/MM/dd')
+                                            .format(_orderList[index].time)),
+                                        Text(DateFormat('kk:mm')
+                                            .format(_orderList[index].time)),
+                                      ],
+                                    ),
                                     _orderList[index].completed
                                         ? const Text("已完成")
                                         : const Text(
@@ -705,20 +713,12 @@ class _ShoppingPageState extends State<ShoppingPage> {
                     ),
                     onTap: () async {
                       if (!_orderList[index].completed) {
-                        bool? done = await showCompleteConfirmDialog();
-                        if (done == null) {
-                          print("未完成");
-                        } else {
-                          print("已完成");
-                          print(_orderList[index].id.toString());
-
+                        bool? done = await showConfirmDialog("確認已收到商品");
+                        if (done != null){
                           //update orderdatabase
                           completeOrder(_orderList[index]);
-
-                          print(_orderList[index].completed);
                           getOrders();
                         }
-                        // });
                       }
                     },
                   ),
@@ -770,7 +770,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
         Expanded(
             child: buyerOrSeller == 1
                 ? _chatroomOfSeller.isNotEmpty
-                    ? chatRoom(_chatroomOfSeller, _lastMsgOfseller)
+                    ? chatRoom(_chatroomOfSeller, _lastMsgOfSeller)
                     : const Center(
                         child: Text(
                           "無",
@@ -796,11 +796,6 @@ class _ShoppingPageState extends State<ShoppingPage> {
     return temp;
   }
 
-  // Future<DateTime> searchMessageTime(int roomid) async {
-  //   Message temp = await MessagesDatabase.instance.readMessage(roomid);
-  //   return temp.time;
-  // }
-
   Future<String> searchLastMessage(int roomid) async {
     String temp = await MessagesDatabase.instance.readMessage(roomid);
     return temp;
@@ -820,6 +815,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(15.0),
             child: CachedNetworkImage(
+              width: 60,
               imageUrl: item.imageURL,
               fit: BoxFit.cover,
               placeholder: (context, url) => Padding(
@@ -850,7 +846,10 @@ class _ShoppingPageState extends State<ShoppingPage> {
                     builder: (BuildContext context) => ChatPage(
                         userid: widget.user.id!,
                         item: item,
-                        chatroom: list[index])));
+                        chatroom: list[index]))).then((value) {
+              getBuyerChatroom();
+              getSellerChatroom();
+            });
           },
         );
       },

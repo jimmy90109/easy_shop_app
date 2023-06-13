@@ -1,7 +1,7 @@
 import 'package:easy_shop/bd/item_database.dart';
 import 'package:easy_shop/toast.dart';
 import 'package:flutter/material.dart';
-import 'color/palette.dart';
+import 'decoration/decorations.dart';
 import 'model/item.dart';
 
 class AddItemPage extends StatefulWidget {
@@ -13,7 +13,6 @@ class AddItemPage extends StatefulWidget {
 }
 
 class _AddItemPageState extends State<AddItemPage> {
- //id, ownerid, name, description, price, imageURL, inventory
   String name='', detail='', imageURL='';
   int price=0, inventory=0;
 
@@ -32,7 +31,6 @@ class _AddItemPageState extends State<AddItemPage> {
         actions: [
           ElevatedButton(
             style: TextButton.styleFrom(
-              //backgroundColor: Palette.kToGrey,
               padding: const EdgeInsets.all(0),
               elevation: 0,
               shape: const CircleBorder(side: BorderSide(color: Colors.transparent)),
@@ -61,7 +59,6 @@ class _AddItemPageState extends State<AddItemPage> {
       ),
       body: Center(
         child: ListView(
-          //shrinkWrap: true,
           padding: const EdgeInsets.all(32.0),
           children: [
             Column(
@@ -73,13 +70,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   style: TextStyle(fontSize: 16, color: Colors.grey[800]),
                 ),
                 TextField(
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      )),
+                  decoration: filledInput,
                   onChanged: (text) {
                     name = text;
                   },
@@ -91,13 +82,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   style: TextStyle(fontSize: 16, color: Colors.grey[800]),
                 ),
                 TextField(
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      )),
+                  decoration: filledInput,
                   onChanged: (text) {
                     imageURL = text;
                   },
@@ -112,13 +97,7 @@ class _AddItemPageState extends State<AddItemPage> {
                 TextField(
                   maxLines: 10,
                   keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      )),
+                  decoration: filledInput,
                   onChanged: (text) {
                     detail = text;
                   },
@@ -132,13 +111,7 @@ class _AddItemPageState extends State<AddItemPage> {
                 ),
                 TextField(
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      )),
+                  decoration: filledInput,
                   onChanged: (text) {
                     price = int.parse(text);
                   },
@@ -152,13 +125,7 @@ class _AddItemPageState extends State<AddItemPage> {
                 ),
                 TextField(
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      )),
+                  decoration: filledInput,
                   onChanged: (text) {
                     inventory = int.parse(text);
                   },

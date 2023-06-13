@@ -45,8 +45,6 @@ CREATE TABLE $tableCarts (
   Future<Cart> create(Cart cart) async {
     final db = await instance.database;
 
-    //print(cart);
-
     // final json = Cart.toJson();
     // final columns =
     //     '${CartFields.title}, ${CartFields.description}, ${CartFields.time}';
@@ -57,6 +55,7 @@ CREATE TABLE $tableCarts (
 
     //equal to this line
     final userid = await db.insert(tableCarts, cart.toJson());
+
     return cart.copy(userid: userid);
   }
 
@@ -77,24 +76,6 @@ CREATE TABLE $tableCarts (
       return [];
     }
   }
-
-  // Future<List<Cart>> readAllCarts() async {
-  //   final db = await instance.database;
-  //   final orderBy = '${CartFields.itemid} ASC';
-  //   // final result =
-  //   //     await db.rawQuery('SELECT * FROM $tableCarts ORDER BY $orderBy');
-  //
-  //   final result = await db.query(tableCarts, orderBy: orderBy);
-  //   //print(result);
-  //
-  //   // if (result.isNotEmpty) {
-  //   //   return result.map((json) => Cart.fromJson(json)).toList();
-  //   // } else {
-  //   //   return [];
-  //   // }
-  //
-  //   return result.map((json) => Cart.fromJson(json)).toList();
-  // }
 
   Future update(Cart cart) async {
     final db = await instance.database;
@@ -119,7 +100,6 @@ CREATE TABLE $tableCarts (
     } else {
       await db.insert(tableCarts, cart.toJson());
     }
-
   }
 
   Future<int> delete(int userid, int itemid) async {

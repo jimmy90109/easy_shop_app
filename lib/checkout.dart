@@ -64,9 +64,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
-                          // AspectRatio(
-                          //   aspectRatio: 18.0 / 18.0,
-                          //   child:
                           ClipRRect(
                             borderRadius: BorderRadius.circular(15.0),
                             child: CachedNetworkImage(
@@ -84,7 +81,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   const Icon(Icons.error),
                             ),
                           ),
-                          //),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(

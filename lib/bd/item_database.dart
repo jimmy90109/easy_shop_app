@@ -49,17 +49,6 @@ CREATE TABLE $tableItems (
   Future<Item> create(Item item) async {
     final db = await instance.database;
 
-    //print(item);
-
-    // final json = Item.toJson();
-    // final columns =
-    //     '${ItemFields.title}, ${ItemFields.description}, ${ItemFields.time}';
-    // final values =
-    //     '${json[ItemFields.title]}, ${json[ItemFields.description]}, ${json[ItemFields.time]}';
-    // final id = await db
-    //     .rawInsert('INSERT INTO table_name ($columns) VALUES ($values)');
-
-    //equal to this line
     final id = await db.insert(tableItems, item.toJson());
     await ChatroomsDatabase.instance.syncItems(id, item.name, item.ownerid, item.imageURL);
 
@@ -86,17 +75,8 @@ CREATE TABLE $tableItems (
   Future<List<Item>> readAllItems() async {
     final db = await instance.database;
     const orderBy = '${ItemFields.id} ASC';
-    // final result =
-    //     await db.rawQuery('SELECT * FROM $tableItems ORDER BY $orderBy');
 
     final result = await db.query(tableItems, orderBy: orderBy);
-    //print(result);
-
-    // if (result.isNotEmpty) {
-    //   return result.map((json) => Item.fromJson(json)).toList();
-    // } else {
-    //   return [];
-    // }
 
     return result.map((json) => Item.fromJson(json)).toList();
   }

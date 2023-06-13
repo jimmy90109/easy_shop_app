@@ -6,6 +6,7 @@ import 'package:easy_shop/model/item.dart';
 import 'package:easy_shop/toast.dart';
 import 'package:flutter/material.dart';
 
+import 'editItem.dart';
 import 'model/buyer.dart';
 import 'model/cart.dart';
 import 'model/chatroom.dart';
@@ -25,7 +26,6 @@ class DetailPage extends StatelessWidget {
 
   Future createRoom(Chatroom chatroom) async {
     await ChatroomsDatabase.instance.create(chatroom);
-    //warning("已新增至購物車！");
   }
 
   Future addToCart() async {
@@ -44,6 +44,22 @@ class DetailPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          //editButton
+          if (user.id == item.ownerid)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => EditItemPage(
+                              ownerID: user.id!,
+                              item: item,
+                            )));
+              },
+            )
+        ],
       ),
       body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,6 +71,10 @@ class DetailPage extends StatelessWidget {
                   height: MediaQuery.of(context).size.width,
                   fit: BoxFit.fitWidth,
                   image: CachedNetworkImageProvider(item.imageURL),
+                  errorBuilder: (context, url, error) => SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.width,
+                      child: const Icon(Icons.error)),
                 )),
             Expanded(
               child: Padding(
@@ -101,31 +121,41 @@ class DetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            // if(user.id == item.ownerid)
             Padding(
               padding: const EdgeInsets.all(32.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   FilledButton(
-                      onPressed: user.id == item.ownerid
-                          ? null
-                          : () {
-                        final chatroom = Chatroom(
-                          buyerid: user.id!,
-                          itemid: item.id!,
-                        );
-                              createRoom(chatroom);
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                      builder: (BuildContext context) => ChatPage(userid: user.id!, item: item, chatroom: chatroom)));
-                            },
-                      child: const Text("聯絡賣家")),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: const Text("聯絡賣家"),
+                    ),
+                    onPressed: user.id == item.ownerid
+                        ? null
+                        : () {
+                            final chatroom = Chatroom(
+                              buyerid: user.id!,
+                              itemid: item.id!
+                            );
+                            createRoom(chatroom);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) => ChatPage(
+                                        userid: user.id!,
+                                        item: item,
+                                        chatroom: chatroom)));
+                          },
+                  ),
                   FilledButton(
-                      onPressed:
-                          user.id == item.ownerid ? null : () => addToCart(),
-                      child: const Text("加入購物車")),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: const Text("加入購物車"),
+                    ),
+                    onPressed:
+                        user.id == item.ownerid ? null : () => addToCart(),
+                  ),
                 ],
               ),
             ),

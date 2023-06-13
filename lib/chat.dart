@@ -1,5 +1,4 @@
 import 'package:easy_shop/bd/message_database.dart';
-import 'package:easy_shop/color/palette.dart';
 import 'package:easy_shop/model/chatroom.dart';
 import 'package:easy_shop/model/item.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,15 +19,15 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   var msgController = TextEditingController();
 
-  final ScrollController _controller = ScrollController();
+  //final ScrollController _controller = ScrollController();
 
-  void _scrollDown() {
-    _controller.animateTo(
-      _controller.position.maxScrollExtent,
-      duration: Duration(microseconds: 500),
-      curve: Curves.fastOutSlowIn,
-    );
-  }
+  // void _scrollDown() {
+  //   _controller.animateTo(
+  //     _controller.position.maxScrollExtent,
+  //     duration: Duration(microseconds: 500),
+  //     curve: Curves.fastOutSlowIn,
+  //   );
+  // }
 
   String temp = '';
   late List<Message> _messageList;
@@ -60,7 +59,7 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("聊天室"),
+        title: Text(widget.item.name),
       ),
       body: Column(
         children: [
@@ -70,10 +69,10 @@ class _ChatPageState extends State<ChatPage> {
               children: [
                 Expanded(
                     child: ListView.builder(
-                      controller: _controller,
+                      //controller: _controller,
                             itemCount: _messageList.length,
                             //reverse: true,
-                            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
+                            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0),
                             itemBuilder: (BuildContext context, int index) {
                               return Container(
                                 alignment: _messageList[index].senderid ==
@@ -105,7 +104,7 @@ class _ChatPageState extends State<ChatPage> {
                                               _messageList[index].senderid ==
                                                       widget.userid
                                                   ? "你"
-                                                  : widget.userid == widget.item.id ? "賣家" : "買家",
+                                                  : _messageList[index].senderid == widget.item.ownerid ? "賣家" : "買家",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold),
                                             ),
@@ -132,7 +131,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
           Container(
             decoration: BoxDecoration(
-              color: Palette.kToGrey[50],
+              color: Colors.grey[300],
             ),
             // color: Palette.kToGrey[500],
             child: Padding(
@@ -145,7 +144,7 @@ class _ChatPageState extends State<ChatPage> {
                       decoration: InputDecoration(
                           hintText: "傳送訊息...",
                           filled: true,
-                          fillColor: Palette.kToGrey[50],
+                          fillColor: Colors.grey[300],
                           border: const OutlineInputBorder(
                             borderSide: BorderSide.none,
                           )),
@@ -159,7 +158,7 @@ class _ChatPageState extends State<ChatPage> {
                         if(temp.isNotEmpty){
                           createMessage(temp);
                           getMessages();
-                          _scrollDown();
+                          //_scrollDown();
                           msgController.clear();
                           temp = '';
                         }

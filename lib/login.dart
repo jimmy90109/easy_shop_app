@@ -1,8 +1,8 @@
 import 'package:easy_shop/shoppingPage.dart';
 import 'package:easy_shop/toast.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'bd/buyer_database.dart';
+import 'decoration/decorations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,20 +17,15 @@ class _LoginPageState extends State<LoginPage> {
 
   Future checkEmail(String email) async {
     final boo = await BuyersDatabase.instance.ifBuyerExistByEmail(email);
-    //print(boo);
     if (boo) {
-      //warning("此電子信箱已註冊過！");
       final user = await BuyersDatabase.instance.readBuyerByEmail(email);
       if (user.password == password) {
-        //print all buyers
-        print(await BuyersDatabase.instance.readAllBuyers());
+        warning("登入成功！");
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute<void>(
                 builder: (BuildContext context) => ShoppingPage(user: user)),
-                (e) => false);
-        //Navigator.push(context, MaterialPageRoute(builder: (context) => ShoppingPage()));
-        warning("登入成功！");
+            (e) => false);
       } else {
         warning("密碼錯誤！");
       }
@@ -44,8 +39,8 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('登入'),
-        elevation: 0,
         centerTitle: true,
+        elevation: 0,
       ),
       body: Center(
         child: ListView(
@@ -61,13 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(fontSize: 16, color: Colors.grey[800]),
                 ),
                 TextField(
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      )),
+                  decoration: filledInput,
                   onChanged: (text) {
                     email = text;
                   },
@@ -81,13 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 TextField(
                   obscureText: true,
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      )),
+                  decoration: filledInput,
                   onChanged: (text) {
                     password = text;
                   },
@@ -98,18 +81,18 @@ class _LoginPageState extends State<LoginPage> {
               height: 30,
             ),
             FilledButton(
-                onPressed: () {
-                  if (email != '' && password != '') {
-                    checkEmail(email);
-                  } else {
-                    warning("請輸入所有欄位！");
-                  }
-                },
-                child: const Text("登入"))
+              child: const Text("登入"),
+              onPressed: () {
+                if (email != '' && password != '') {
+                  checkEmail(email);
+                } else {
+                  warning("請輸入所有欄位！");
+                }
+              },
+            )
           ],
         ),
       ),
-
     );
   }
 }

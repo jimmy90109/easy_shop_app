@@ -26,11 +26,11 @@ class BuyersDatabase {
   }
 
   Future _createDB(Database db, int version) async {
-    final idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-    final textType = 'TEXT NOT NULL';
-    final boolType = 'BOOLEAN NOT NULL';
-    final integerType = 'INTEGER NOT NULL';
-    final realType = 'REAL NOT NULL';
+    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    const textType = 'TEXT NOT NULL';
+    // const boolType = 'BOOLEAN NOT NULL';
+    const integerType = 'INTEGER NOT NULL';
+    const realType = 'REAL NOT NULL';
 
     await db.execute('''
 CREATE TABLE $tableBuyers ( 
@@ -48,8 +48,6 @@ CREATE TABLE $tableBuyers (
   Future<Buyer> create(Buyer buyer) async {
     final db = await instance.database;
 
-    //print(buyer);
-
     // final json = Buyer.toJson();
     // final columns =
     //     '${BuyerFields.title}, ${BuyerFields.description}, ${BuyerFields.time}';
@@ -60,12 +58,11 @@ CREATE TABLE $tableBuyers (
 
     //equal to this line
     final id = await db.insert(tableBuyers, buyer.toJson());
+
     return buyer.copy(id: id);
   }
 
   Future<bool> ifBuyerExistByEmail(String email) async {
-    // print(email);
-    // print("checking email...");
     final db = await instance.database;
 
     final maps = await db.query(
@@ -74,14 +71,11 @@ CREATE TABLE $tableBuyers (
       where: '${BuyerFields.email} = ?',
       whereArgs: [email],
     );
-    // print(maps);
-    return maps.isNotEmpty ?  true : false;
 
+    return maps.isNotEmpty ?  true : false;
   }
 
   Future<Buyer> readBuyerByEmail(String email) async {
-    // print(email);
-    // print("checking email...");
     final db = await instance.database;
 
     final maps = await db.query(
@@ -90,9 +84,8 @@ CREATE TABLE $tableBuyers (
       where: '${BuyerFields.email} = ?',
       whereArgs: [email],
     );
-    // print(maps);
-    return Buyer.fromJson(maps.first);
 
+    return Buyer.fromJson(maps.first);
   }
 
   Future<Buyer> readBuyer(int id) async {
